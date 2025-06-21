@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
@@ -60,7 +59,7 @@ serve(async (req) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': authToken,
+        'X-N8N-Webhook-Auth': authToken,
         ...corsHeaders
       },
       body: JSON.stringify(webhookPayload)

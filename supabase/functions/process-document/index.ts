@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -71,7 +70,7 @@ serve(async (req) => {
     }
 
     if (authHeader) {
-      headers['Authorization'] = authHeader
+      headers['X-N8N-Webhook-Auth'] = authHeader
     }
 
     const response = await fetch(webhookUrl, {

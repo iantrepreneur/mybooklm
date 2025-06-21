@@ -31,11 +31,12 @@ serve(async (req) => {
     console.log('Sending to webhook with auth header');
 
     // Send message to n8n webhook with authentication
+    // Using Authorization header instead of custom header for httpHeaderAuth
     const webhookResponse = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-N8N-Webhook-Auth': authHeader,
+        'Authorization': authHeader,
       },
       body: JSON.stringify({
         session_id,

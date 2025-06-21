@@ -30,8 +30,21 @@ serve(async (req) => {
     if (!webServiceUrl || !authHeader) {
       console.error('Missing environment variables:', {
         hasUrl: !!webServiceUrl,
-        hasAuth: !!authHeader
+        hasAuth: !!authHeader,
+        urlValue: webServiceUrl ? 'set' : 'not set',
+        authValue: authHeader ? `set (${authHeader.substring(0, 10)}...)` : 'not set'
       })
+      
+      // Initialize Supabase client to update status
+      const supabaseClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      )
+
+      await supabaseClient
+        .from('notebooks')
+        .update({ generation_status: 'failed' })
+        .eq('id', notebookId)
       
       return new Response(
         JSON.stringify({ error: 'Web service configuration missing' }),
@@ -52,6 +65,7 @@ serve(async (req) => {
       .eq('id', notebookId)
 
     console.log('Calling external web service...')
+    console.log('Using auth header (first 10 chars):', authHeader.substring(0, 10) + '...');
 
     // Prepare payload based on source type
     let payload: any = {
@@ -97,8 +111,20 @@ serve(async (req) => {
         .update({ generation_status: 'failed' })
         .eq('id', notebookId)
 
+      // Provide more specific error messages
+      let errorMessage = 'Failed to generate content from web service';
+      if (response.status === 401 || response.status === 403) {
+        errorMessage = 'Authentication failed - please check webhook configuration';
+      } else if (response.status >= 500) {
+        errorMessage = 'External service error - please try again later';
+      }
+
       return new Response(
-        JSON.stringify({ error: 'Failed to generate content from web service' }),
+        JSON.stringify({ 
+          error: errorMessage,
+          details: errorText,
+          status: response.status 
+        }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -182,8 +208,27 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Edge function error:', error)
+    
+    // Try to update notebook status to failed if we have the notebookId
+    try {
+      const body = await req.json()
+      if (body.notebookId) {
+        const supabaseClient = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        )
+        
+        await supabaseClient
+          .from('notebooks')
+          .update({ generation_status: 'failed' })
+          .eq('id', body.notebookId)
+      }
+    } catch (updateError) {
+      console.error('Failed to update notebook status:', updateError)
+    }
+    
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: 'Internal server error', details: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

@@ -133,16 +133,49 @@ const AddSourcesDialog = ({
       } catch (processingError) {
         console.error('Document processing failed:', processingError);
 
+        // Check if it's an authentication error
+        const errorMessage = processingError instanceof Error ? processingError.message : String(processingError);
+        if (errorMessage.includes('Authentication failed') || errorMessage.includes('Authorization data is wrong')) {
+          toast({
+            title: "Configuration Error",
+            description: "There's an issue with the webhook configuration. Please contact support.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Processing Error",
+            description: "Document processing failed. The file has been uploaded but may need manual processing.",
+            variant: "destructive"
+          });
+        }
+
         // Update to completed with basic info if processing fails
         updateSource({
           sourceId,
           updates: {
-            processing_status: 'completed'
+            processing_status: 'failed'
           }
         });
       }
     } catch (error) {
       console.error('File processing failed for:', file.name, error);
+
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      // Show user-friendly error message
+      if (errorMessage.includes('Authentication failed') || errorMessage.includes('Authorization data is wrong')) {
+        toast({
+          title: "Configuration Error",
+          description: "There's an issue with the system configuration. Please contact support.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Upload Error",
+          description: `Failed to process ${file.name}. Please try again.`,
+          variant: "destructive"
+        });
+      }
 
       // Update status to failed
       updateSource({
@@ -253,11 +286,22 @@ const AddSourcesDialog = ({
     } catch (error) {
       console.error('Error creating sources:', error);
       setIsLocallyProcessing(false);
-      toast({
-        title: "Error",
-        description: "Failed to add files. Please try again.",
-        variant: "destructive"
-      });
+      
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      if (errorMessage.includes('Authentication failed') || errorMessage.includes('Authorization data is wrong')) {
+        toast({
+          title: "Configuration Error",
+          description: "There's an issue with the system configuration. Please contact support.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to add files. Please try again.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -301,11 +345,22 @@ const AddSourcesDialog = ({
       });
     } catch (error) {
       console.error('Error adding text source:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add text source",
-        variant: "destructive"
-      });
+      
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      if (errorMessage.includes('Authentication failed') || errorMessage.includes('Authorization data is wrong')) {
+        toast({
+          title: "Configuration Error",
+          description: "There's an issue with the system configuration. Please contact support.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to add text source",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLocallyProcessing(false);
     }
@@ -386,11 +441,22 @@ const AddSourcesDialog = ({
       onOpenChange(false);
     } catch (error) {
       console.error('Error adding multiple websites:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add websites",
-        variant: "destructive"
-      });
+      
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      if (errorMessage.includes('Authentication failed') || errorMessage.includes('Authorization data is wrong')) {
+        toast({
+          title: "Configuration Error",
+          description: "There's an issue with the system configuration. Please contact support.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to add websites",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLocallyProcessing(false);
     }

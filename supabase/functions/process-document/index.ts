@@ -16,66 +16,66 @@ serve(async (req) => {
 
     if (!sourceId || !filePath || !sourceType) {
       return new Response(
-        JSON.stringify({ error: 'sourceId, filePath, and sourceType are required' }),
+        JSON.stringify({ error: 'sourceId, filePath et sourceType sont requis' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('Processing document:', { source_id: sourceId, file_path: filePath, source_type: sourceType });
+    console.log('Traitement du document:', { source_id: sourceId, file_path: filePath, source_type: sourceType });
 
-    // Get environment variables
+    // Récupérer les variables d'environnement
     const webhookUrl = Deno.env.get('DOCUMENT_PROCESSING_WEBHOOK_URL')
-    const authHeader = Deno.env.get('DOCUMENT_PROCESSING_AUTH') || Deno.env.get('NOTEBOOK_GENERATION_AUTH')
+    const authHeader = Deno.env.get('NOTEBOOK_GENERATION_AUTH')
 
     if (!webhookUrl) {
-      console.error('Missing DOCUMENT_PROCESSING_WEBHOOK_URL environment variable')
+      console.error('Variable d\'environnement DOCUMENT_PROCESSING_WEBHOOK_URL manquante')
       
-      // Initialize Supabase client to update status
+      // Initialiser le client Supabase pour mettre à jour le statut
       const supabaseClient = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       )
 
-      // Update source status to failed
+      // Mettre à jour le statut de la source en échec
       await supabaseClient
         .from('sources')
         .update({ processing_status: 'failed' })
         .eq('id', sourceId)
 
       return new Response(
-        JSON.stringify({ error: 'Document processing webhook URL not configured' }),
+        JSON.stringify({ error: 'URL du webhook de traitement de document non configurée' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
     if (!authHeader) {
-      console.error('Missing authentication header - DOCUMENT_PROCESSING_AUTH or NOTEBOOK_GENERATION_AUTH environment variable not set')
+      console.error('En-tête d\'authentification manquant - variable d\'environnement NOTEBOOK_GENERATION_AUTH non définie')
       
-      // Initialize Supabase client to update status
+      // Initialiser le client Supabase pour mettre à jour le statut
       const supabaseClient = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       )
 
-      // Update source status to failed
+      // Mettre à jour le statut de la source en échec
       await supabaseClient
         .from('sources')
         .update({ processing_status: 'failed' })
         .eq('id', sourceId)
 
       return new Response(
-        JSON.stringify({ error: 'Authentication not configured for document processing' }),
+        JSON.stringify({ error: 'Authentification non configurée pour le traitement de document' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('Calling external webhook:', webhookUrl);
-    console.log('Using auth header (first 10 chars):', authHeader.substring(0, 10) + '...');
+    console.log('Appel du webhook externe:', webhookUrl);
+    console.log('Utilisation de l\'en-tête d\'authentification (10 premiers caractères):', authHeader.substring(0, 10) + '...');
 
-    // Create the file URL for public access
+    // Créer l'URL du fichier pour l'accès public
     const fileUrl = `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/sources/${filePath}`
 
-    // Prepare the payload for the webhook with correct variable names
+    // Préparer le payload pour le webhook avec les noms de variables corrects
     const payload = {
       source_id: sourceId,
       file_url: fileUrl,
@@ -84,9 +84,9 @@ serve(async (req) => {
       callback_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/process-document-callback`
     }
 
-    console.log('Webhook payload:', payload);
+    console.log('Payload du webhook:', payload);
 
-    // Call external webhook with proper headers
+    // Appeler le webhook externe avec les en-têtes appropriés
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-N8N-Webhook-Auth': authHeader
@@ -100,26 +100,26 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Webhook call failed:', response.status, response.statusText, errorText);
+      console.error('Échec de l\'appel du webhook:', response.status, response.statusText, errorText);
       
-      // Initialize Supabase client to update status
+      // Initialiser le client Supabase pour mettre à jour le statut
       const supabaseClient = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       )
 
-      // Update source status to failed
+      // Mettre à jour le statut de la source en échec
       await supabaseClient
         .from('sources')
         .update({ processing_status: 'failed' })
         .eq('id', sourceId)
 
-      // Provide more specific error messages
-      let errorMessage = 'Document processing failed';
+      // Fournir des messages d'erreur plus spécifiques
+      let errorMessage = 'Échec du traitement du document';
       if (response.status === 401 || response.status === 403) {
-        errorMessage = 'Authentication failed - please check webhook configuration';
+        errorMessage = 'Échec de l\'authentification - veuillez vérifier la configuration du webhook';
       } else if (response.status >= 500) {
-        errorMessage = 'External service error - please try again later';
+        errorMessage = 'Erreur du service externe - veuillez réessayer plus tard';
       }
 
       return new Response(
@@ -133,17 +133,17 @@ serve(async (req) => {
     }
 
     const result = await response.json()
-    console.log('Webhook response:', result);
+    console.log('Réponse du webhook:', result);
 
     return new Response(
-      JSON.stringify({ success: true, message: 'Document processing initiated', result }),
+      JSON.stringify({ success: true, message: 'Traitement du document initié', result }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
-    console.error('Error in process-document function:', error)
+    console.error('Erreur dans la fonction process-document:', error)
     
-    // Try to update source status to failed if we have the sourceId
+    // Essayer de mettre à jour le statut de la source en échec si nous avons le sourceId
     try {
       const body = await req.json()
       if (body.sourceId) {
@@ -158,11 +158,11 @@ serve(async (req) => {
           .eq('id', body.sourceId)
       }
     } catch (updateError) {
-      console.error('Failed to update source status:', updateError)
+      console.error('Échec de la mise à jour du statut de la source:', updateError)
     }
     
     return new Response(
-      JSON.stringify({ error: 'Internal server error', details: error.message }),
+      JSON.stringify({ error: 'Erreur interne du serveur', details: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

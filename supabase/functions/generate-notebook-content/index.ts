@@ -16,26 +16,26 @@ serve(async (req) => {
 
     if (!notebookId || !sourceType) {
       return new Response(
-        JSON.stringify({ error: 'notebookId and sourceType are required' }),
+        JSON.stringify({ error: 'notebookId et sourceType sont requis' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('Processing request:', { notebookId, filePath, sourceType });
+    console.log('Traitement de la demande:', { notebookId, filePath, sourceType });
 
-    // Get environment variables
+    // Récupérer les variables d'environnement
     const webServiceUrl = Deno.env.get('NOTEBOOK_GENERATION_URL')
     const authHeader = Deno.env.get('NOTEBOOK_GENERATION_AUTH')
 
     if (!webServiceUrl || !authHeader) {
-      console.error('Missing environment variables:', {
+      console.error('Variables d\'environnement manquantes:', {
         hasUrl: !!webServiceUrl,
         hasAuth: !!authHeader,
-        urlValue: webServiceUrl ? 'set' : 'not set',
-        authValue: authHeader ? `set (${authHeader.substring(0, 10)}...)` : 'not set'
+        urlValue: webServiceUrl ? 'définie' : 'non définie',
+        authValue: authHeader ? `définie (${authHeader.substring(0, 10)}...)` : 'non définie'
       })
       
-      // Initialize Supabase client to update status
+      // Initialiser le client Supabase pour mettre à jour le statut
       const supabaseClient = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -47,36 +47,36 @@ serve(async (req) => {
         .eq('id', notebookId)
       
       return new Response(
-        JSON.stringify({ error: 'Web service configuration missing' }),
+        JSON.stringify({ error: 'Configuration du service web manquante' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // Initialize Supabase client
+    // Initialiser le client Supabase
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Update notebook status to 'generating'
+    // Mettre à jour le statut du notebook à 'generating'
     await supabaseClient
       .from('notebooks')
       .update({ generation_status: 'generating' })
       .eq('id', notebookId)
 
-    console.log('Calling external web service...')
-    console.log('Using auth header (first 10 chars):', authHeader.substring(0, 10) + '...');
+    console.log('Appel du service web externe...')
+    console.log('Utilisation de l\'en-tête d\'authentification (10 premiers caractères):', authHeader.substring(0, 10) + '...');
 
-    // Prepare payload based on source type
+    // Préparer le payload basé sur le type de source
     let payload: any = {
       sourceType: sourceType
     };
 
     if (filePath) {
-      // For file sources (PDF, audio) or URLs (website, YouTube)
+      // Pour les sources de fichiers (PDF, audio) ou les URL (site web, YouTube)
       payload.filePath = filePath;
     } else {
-      // For text sources, we need to get the content from the database
+      // Pour les sources textuelles, nous devons obtenir le contenu de la base de données
       const { data: source } = await supabaseClient
         .from('sources')
         .select('content')
@@ -84,13 +84,13 @@ serve(async (req) => {
         .single();
       
       if (source?.content) {
-        payload.content = source.content.substring(0, 5000); // Limit content size
+        payload.content = source.content.substring(0, 5000); // Limiter la taille du contenu
       }
     }
 
-    console.log('Sending payload to web service:', payload);
+    console.log('Envoi du payload au service web:', payload);
 
-    // Call external web service
+    // Appeler le service web externe
     const response = await fetch(webServiceUrl, {
       method: 'POST',
       headers: {
@@ -101,22 +101,22 @@ serve(async (req) => {
     })
 
     if (!response.ok) {
-      console.error('Web service error:', response.status, response.statusText)
+      console.error('Erreur du service web:', response.status, response.statusText)
       const errorText = await response.text();
-      console.error('Error response:', errorText);
+      console.error('Réponse d\'erreur:', errorText);
       
-      // Update status to failed
+      // Mettre à jour le statut en échec
       await supabaseClient
         .from('notebooks')
         .update({ generation_status: 'failed' })
         .eq('id', notebookId)
 
-      // Provide more specific error messages
-      let errorMessage = 'Failed to generate content from web service';
+      // Fournir des messages d'erreur plus spécifiques
+      let errorMessage = 'Échec de la génération de contenu depuis le service web';
       if (response.status === 401 || response.status === 403) {
-        errorMessage = 'Authentication failed - please check webhook configuration';
+        errorMessage = 'Échec de l\'authentification - veuillez vérifier la configuration du webhook';
       } else if (response.status >= 500) {
-        errorMessage = 'External service error - please try again later';
+        errorMessage = 'Erreur du service externe - veuillez réessayer plus tard';
       }
 
       return new Response(
@@ -130,9 +130,9 @@ serve(async (req) => {
     }
 
     const generatedData = await response.json()
-    console.log('Generated data:', generatedData)
+    console.log('Données générées:', generatedData)
 
-    // Parse the response format: object with output property
+    // Analyser le format de réponse: objet avec propriété output
     let title, description, notebookIcon, backgroundColor, exampleQuestions;
     
     if (generatedData && generatedData.output) {
@@ -143,7 +143,7 @@ serve(async (req) => {
       backgroundColor = output.background_color;
       exampleQuestions = output.example_questions || [];
     } else {
-      console.error('Unexpected response format:', generatedData)
+      console.error('Format de réponse inattendu:', generatedData)
       
       await supabaseClient
         .from('notebooks')
@@ -151,13 +151,13 @@ serve(async (req) => {
         .eq('id', notebookId)
 
       return new Response(
-        JSON.stringify({ error: 'Invalid response format from web service' }),
+        JSON.stringify({ error: 'Format de réponse invalide du service web' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
     if (!title) {
-      console.error('No title returned from web service')
+      console.error('Aucun titre retourné par le service web')
       
       await supabaseClient
         .from('notebooks')
@@ -165,12 +165,12 @@ serve(async (req) => {
         .eq('id', notebookId)
 
       return new Response(
-        JSON.stringify({ error: 'No title in response from web service' }),
+        JSON.stringify({ error: 'Aucun titre dans la réponse du service web' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // Update notebook with generated content including icon, color, and example questions
+    // Mettre à jour le notebook avec le contenu généré, y compris l'icône, la couleur et les questions d'exemple
     const { error: notebookError } = await supabaseClient
       .from('notebooks')
       .update({
@@ -184,14 +184,14 @@ serve(async (req) => {
       .eq('id', notebookId)
 
     if (notebookError) {
-      console.error('Notebook update error:', notebookError)
+      console.error('Erreur de mise à jour du notebook:', notebookError)
       return new Response(
-        JSON.stringify({ error: 'Failed to update notebook' }),
+        JSON.stringify({ error: 'Échec de la mise à jour du notebook' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('Successfully updated notebook with example questions:', exampleQuestions)
+    console.log('Notebook mis à jour avec succès avec les questions d\'exemple:', exampleQuestions)
 
     return new Response(
       JSON.stringify({ 
@@ -201,15 +201,15 @@ serve(async (req) => {
         icon: notebookIcon,
         color: backgroundColor,
         exampleQuestions,
-        message: 'Notebook content generated successfully' 
+        message: 'Contenu du notebook généré avec succès' 
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
-    console.error('Edge function error:', error)
+    console.error('Erreur de fonction Edge:', error)
     
-    // Try to update notebook status to failed if we have the notebookId
+    // Essayer de mettre à jour le statut du notebook en échec si nous avons le notebookId
     try {
       const body = await req.json()
       if (body.notebookId) {
@@ -224,11 +224,11 @@ serve(async (req) => {
           .eq('id', body.notebookId)
       }
     } catch (updateError) {
-      console.error('Failed to update notebook status:', updateError)
+      console.error('Échec de la mise à jour du statut du notebook:', updateError)
     }
     
     return new Response(
-      JSON.stringify({ error: 'Internal server error', details: error.message }),
+      JSON.stringify({ error: 'Erreur interne du serveur', details: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

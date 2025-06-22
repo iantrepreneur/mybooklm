@@ -14,29 +14,29 @@ serve(async (req) => {
   try {
     const { session_id, message, user_id } = await req.json();
     
-    console.log('Received message:', { session_id, message, user_id });
+    console.log('Message reçu:', { session_id, message, user_id });
 
-    // Get the webhook URL and auth header from environment
+    // Récupérer l'URL du webhook et l'en-tête d'authentification depuis l'environnement
     const webhookUrl = Deno.env.get('NOTEBOOK_CHAT_URL');
     const authHeader = Deno.env.get('NOTEBOOK_GENERATION_AUTH');
     
     if (!webhookUrl) {
-      throw new Error('NOTEBOOK_CHAT_URL environment variable not set');
+      throw new Error('Variable d\'environnement NOTEBOOK_CHAT_URL non définie');
     }
 
     if (!authHeader) {
-      throw new Error('NOTEBOOK_GENERATION_AUTH environment variable not set');
+      throw new Error('Variable d\'environnement NOTEBOOK_GENERATION_AUTH non définie');
     }
 
-    console.log('Sending to webhook with auth header');
+    console.log('Envoi vers le webhook avec en-tête d\'authentification');
 
-    // Send message to n8n webhook with authentication
-    // Using Authorization header instead of custom header for httpHeaderAuth
+    // Envoyer le message au webhook n8n avec authentification
+    // Utilisation de l'en-tête X-N8N-Webhook-Auth au lieu d'Authorization
     const webhookResponse = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': authHeader,
+        'X-N8N-Webhook-Auth': authHeader,
       },
       body: JSON.stringify({
         session_id,
@@ -47,14 +47,14 @@ serve(async (req) => {
     });
 
     if (!webhookResponse.ok) {
-      console.error(`Webhook responded with status: ${webhookResponse.status}`);
+      console.error(`Le webhook a répondu avec le statut: ${webhookResponse.status}`);
       const errorText = await webhookResponse.text();
-      console.error('Webhook error response:', errorText);
-      throw new Error(`Webhook responded with status: ${webhookResponse.status}`);
+      console.error('Réponse d\'erreur du webhook:', errorText);
+      throw new Error(`Le webhook a répondu avec le statut: ${webhookResponse.status}`);
     }
 
     const webhookData = await webhookResponse.json();
-    console.log('Webhook response:', webhookData);
+    console.log('Réponse du webhook:', webhookData);
 
     return new Response(
       JSON.stringify({ success: true, data: webhookData }),
@@ -67,11 +67,11 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error in send-chat-message:', error);
+    console.error('Erreur dans send-chat-message:', error);
     
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Failed to send message to webhook' 
+        error: error.message || 'Échec de l\'envoi du message au webhook' 
       }),
       { 
         status: 500,

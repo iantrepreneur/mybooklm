@@ -16,7 +16,7 @@ serve(async (req) => {
     
     if (!notebookId) {
       return new Response(
-        JSON.stringify({ error: 'Notebook ID is required' }),
+        JSON.stringify({ error: 'L\'ID du notebook est requis' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -25,7 +25,7 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Update notebook status to indicate audio generation has started
+    // Mettre à jour le statut du notebook pour indiquer que la génération audio a commencé
     const { error: updateError } = await supabase
       .from('notebooks')
       .update({
@@ -34,29 +34,29 @@ serve(async (req) => {
       .eq('id', notebookId)
 
     if (updateError) {
-      console.error('Error updating notebook status:', updateError)
+      console.error('Erreur lors de la mise à jour du statut du notebook:', updateError)
       throw updateError
     }
 
-    // Get audio generation webhook URL and auth from secrets
+    // Récupérer l'URL du webhook de génération audio et l'authentification depuis les secrets
     const audioGenerationWebhookUrl = Deno.env.get('AUDIO_GENERATION_WEBHOOK_URL')
     const authHeader = Deno.env.get('NOTEBOOK_GENERATION_AUTH')
 
     if (!audioGenerationWebhookUrl || !authHeader) {
-      console.error('Missing audio generation webhook URL or auth')
+      console.error('URL du webhook de génération audio ou authentification manquante')
       return new Response(
-        JSON.stringify({ error: 'Audio generation service not configured' }),
+        JSON.stringify({ error: 'Service de génération audio non configuré' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('Starting audio overview generation for notebook:', notebookId)
+    console.log('Démarrage de la génération d\'aperçu audio pour le notebook:', notebookId)
 
-    // Start the background task without awaiting
+    // Démarrer la tâche en arrière-plan sans attendre
     EdgeRuntime.waitUntil(
       (async () => {
         try {
-          // Call the external audio generation webhook
+          // Appeler le webhook de génération audio externe
           const audioResponse = await fetch(audioGenerationWebhookUrl, {
             method: 'POST',
             headers: {
@@ -71,20 +71,20 @@ serve(async (req) => {
 
           if (!audioResponse.ok) {
             const errorText = await audioResponse.text()
-            console.error('Audio generation webhook failed:', errorText)
+            console.error('Échec du webhook de génération audio:', errorText)
             
-            // Update status to failed
+            // Mettre à jour le statut en échec
             await supabase
               .from('notebooks')
               .update({ audio_overview_generation_status: 'failed' })
               .eq('id', notebookId)
           } else {
-            console.log('Audio generation webhook called successfully for notebook:', notebookId)
+            console.log('Webhook de génération audio appelé avec succès pour le notebook:', notebookId)
           }
         } catch (error) {
-          console.error('Background audio generation error:', error)
+          console.error('Erreur de génération audio en arrière-plan:', error)
           
-          // Update status to failed
+          // Mettre à jour le statut en échec
           await supabase
             .from('notebooks')
             .update({ audio_overview_generation_status: 'failed' })
@@ -93,11 +93,11 @@ serve(async (req) => {
       })()
     )
 
-    // Return immediately with success status
+    // Retourner immédiatement avec un statut de succès
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Audio generation started',
+        message: 'Génération audio démarrée',
         status: 'generating'
       }),
       { 
@@ -107,10 +107,10 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Error in generate-audio-overview:', error)
+    console.error('Erreur dans generate-audio-overview:', error)
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Failed to start audio generation' 
+        error: error.message || 'Échec du démarrage de la génération audio' 
       }),
       { 
         status: 500, 

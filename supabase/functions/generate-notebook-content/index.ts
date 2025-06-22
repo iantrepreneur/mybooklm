@@ -95,7 +95,7 @@ serve(async (req) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-N8N-Webhook-Auth': authHeader,
+        'Authorization': authHeader,
       },
       body: JSON.stringify(payload)
     })

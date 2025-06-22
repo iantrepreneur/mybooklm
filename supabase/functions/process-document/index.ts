@@ -89,7 +89,7 @@ serve(async (req) => {
     // Appeler le webhook externe avec les en-têtes appropriés
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'X-N8N-Webhook-Auth': authHeader
+      'Authorization': authHeader
     }
 
     const response = await fetch(webhookUrl, {

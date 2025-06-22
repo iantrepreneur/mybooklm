@@ -31,12 +31,12 @@ serve(async (req) => {
     console.log('Envoi vers le webhook avec en-tête d\'authentification');
 
     // Envoyer le message au webhook n8n avec authentification
-    // Utilisation de l'en-tête X-N8N-Webhook-Auth au lieu d'Authorization
+    // Utiliser l'en-tête Authorization au lieu de X-N8N-Webhook-Auth
     const webhookResponse = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-N8N-Webhook-Auth': authHeader,
+        'Authorization': authHeader,
       },
       body: JSON.stringify({
         session_id,

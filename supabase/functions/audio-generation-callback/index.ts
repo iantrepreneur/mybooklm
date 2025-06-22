@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -14,13 +13,13 @@ serve(async (req) => {
 
   try {
     const body = await req.json()
-    console.log('Audio generation callback received:', body)
+    console.log('Callback de génération audio reçu:', body)
     
     const { notebook_id, audio_url, status, error } = body
     
     if (!notebook_id) {
       return new Response(
-        JSON.stringify({ error: 'Notebook ID is required' }),
+        JSON.stringify({ error: 'L\'ID du notebook est requis' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -30,11 +29,11 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     if (status === 'success' && audio_url) {
-      // Set expiration time (24 hours from now)
+      // Définir le temps d'expiration (24 heures à partir de maintenant)
       const expiresAt = new Date()
       expiresAt.setHours(expiresAt.getHours() + 24)
 
-      // Update notebook with audio URL and success status
+      // Mettre à jour le notebook avec l'URL audio et le statut de succès
       const { error: updateError } = await supabase
         .from('notebooks')
         .update({
@@ -45,13 +44,13 @@ serve(async (req) => {
         .eq('id', notebook_id)
 
       if (updateError) {
-        console.error('Error updating notebook with audio URL:', updateError)
+        console.error('Erreur lors de la mise à jour du notebook avec l\'URL audio:', updateError)
         throw updateError
       }
 
-      console.log('Audio overview completed successfully for notebook:', notebook_id)
+      console.log('Aperçu audio complété avec succès pour le notebook:', notebook_id)
     } else {
-      // Update notebook with failed status
+      // Mettre à jour le notebook avec le statut d'échec
       const { error: updateError } = await supabase
         .from('notebooks')
         .update({
@@ -60,11 +59,11 @@ serve(async (req) => {
         .eq('id', notebook_id)
 
       if (updateError) {
-        console.error('Error updating notebook status to failed:', updateError)
+        console.error('Erreur lors de la mise à jour du statut du notebook en échec:', updateError)
         throw updateError
       }
 
-      console.log('Audio generation failed for notebook:', notebook_id, 'Error:', error)
+      console.log('Génération audio échouée pour le notebook:', notebook_id, 'Erreur:', error)
     }
 
     return new Response(
@@ -76,10 +75,10 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Error in audio-generation-callback:', error)
+    console.error('Erreur dans audio-generation-callback:', error)
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Failed to process callback' 
+        error: error.message || 'Échec du traitement du callback' 
       }),
       { 
         status: 500, 

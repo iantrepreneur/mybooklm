@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="https://www.theaiautomators.com/wp-content/uploads/2025/06/Group-2651.svg" alt="InsightsLM Logo" width="600"/>
+  <img src="https://www.theaiautomators.com/wp-content/uploads/2025/06/Group-2651.svg" alt="BookLM Logo" width="600"/>
 </p>
 
 
-# InsightsLM: The Open Source NotebookLM Alternative
+# BookLM: The Open Source NotebookLM Alternative
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub stars](https://img.shields.io/github/stars/theaiautomators/insights-lm-public?style=social)](https://github.com/theaiautomators/insights-lm-public/stargazers)
@@ -11,16 +11,16 @@
 
 > What if the power of a tool like NotebookLM wasn't locked away in a closed system? What if you could build a private, self-hosted alternative that can be customized for your business needs, all without writing a single line of code?
 
-That's exactly what we've done with **InsightsLM**. This project is an open-source, self-hostable alternative to NotebookLM. It's designed to be a powerful AI research tool that grounds its responses exclusively in the sources you provide, making it a reliable window into your company's knowledge base.
+That's exactly what we've done with **BookLM**. This project is an open-source, self-hostable alternative to NotebookLM. It's designed to be a powerful AI research tool that grounds its responses exclusively in the sources you provide, making it a reliable window into your company's knowledge base.
 
 
 ## About The Project
 
-NotebookLM is one of the most powerful AI research tools available today. However, its closed-source nature limits its potential for customization and private hosting. InsightsLM was created to bridge this gap.
+NotebookLM is one of the most powerful AI research tools available today. However, its closed-source nature limits its potential for customization and private hosting. BookLM was created to bridge this gap.
 
 This isn't just a basic prototype. It's a robust application with some killer features, developed using a "vibe-coding" approach with Loveable for the Javascript frontend and a powerful backend combination of Supabase and N8N.
 
-We are open-sourcing InsightsLM so you can install it, customize it, improve it, and even commercialize it. The ability to deploy AI agents grounded in a company's specific knowledge (a concept known as Retrieval-Augmented Generation or RAG) represents one of the biggest commercial opportunities for generative AI today.
+We are open-sourcing BookLM so you can install it, customize it, improve it, and even commercialize it. The ability to deploy AI agents grounded in a company's specific knowledge (a concept known as Retrieval-Augmented Generation or RAG) represents one of the biggest commercial opportunities for generative AI today.
 
 
 <p align="center">
@@ -30,7 +30,7 @@ We are open-sourcing InsightsLM so you can install it, customize it, improve it,
 
 ## Join Our Community
 
-If you're interested in learning how to customize InsightsLM or build similar applications, join our community, The AI Automators.
+If you're interested in learning how to customize BookLM or build similar applications, join our community, The AI Automators.
 
 https://www.theaiautomators.com/
 
@@ -46,7 +46,7 @@ https://www.theaiautomators.com/
 
 ## Demo & Walkthrough
 
-For a complete demonstration of InsightsLM, an overview of its architecture, and a step-by-step guide on how to set it up, check out our YouTube video:
+For a complete demonstration of BookLM, an overview of its architecture, and a step-by-step guide on how to set it up, check out our YouTube video:
 
 <p>
   <a target="_blank" href="https://www.youtube.com/watch?v=IXJEGjfZRBE"><img src="https://raw.githubusercontent.com/theaiautomators/insights-lm-public/main/public/video.png" alt="Video" width="500"/></a>
@@ -70,7 +70,7 @@ This project is built with a modern, powerful stack:
 
 ## Getting Started: A Guide for No-Coders to Test and Customize
 
-This guide provides the quickest way to get InsightsLM up and running so you can test, customize, and experiment.
+This guide provides the quickest way to get BookLM up and running so you can test, customize, and experiment.
 
 I recommend you following along from 17:53 in our video here for the full step by step guide - [https://youtu.be/IXJEGjfZRBE?t=1073](https://youtu.be/IXJEGjfZRBE?t=1073)
 
@@ -81,7 +81,7 @@ You will need a notepad file open to copy and paste in various credentials and d
     * Create a new project. Paste in your `database password` into your open notepad file as you will need this later.
 2.  **Create GitHub Account & Repo from Template**
     * If you don't have one, create a free account on [GitHub](https://github.com/).
-    * Navigate to the InsightsLM template repository here: [**github.com/theaiautomators/insights-lm-public**](https://github.com/theaiautomators/insights-lm-public)
+    * Navigate to the BookLM template repository here: [**github.com/theaiautomators/insights-lm-public**](https://github.com/theaiautomators/insights-lm-public)
     * Click the `Use this template` button to create a copy of the repository in your own GitHub account. Fill out the form.
 3.  **Import into an AI-Coding Editor (Bolt.new)**
     * Create an account on [Bolt.new](https://bolt.new/) as it supports Supabase integration. (While the project was built on Loveable, it is currently quite difficult to import existing Github projects into Loveable)
@@ -104,7 +104,7 @@ You will need a notepad file open to copy and paste in various credentials and d
         * NOTEBOOK_GENERATION_AUTH (This is the password for the custom Header Auth for each n8n Webhook)
         * OPENAI_API_KEY (This is used in the Generate Note Title edge function)
 6.  **Test & Customize**
-    * That's it! Your instance of InsightsLM should now be live.
+    * That's it! Your instance of BookLM should now be live.
     * You can now test the application, upload documents, and start chatting.
     * Within Bolt.new you can also deploy this to Netlify
 
@@ -124,10 +124,10 @@ This codebase is distributed under the MIT License.
 
 ## A Note on n8n's Sustainable Use License
 
-While InsightsLM is fully open-sourced and Supabase is also open source, it's important to be aware that n8n, which powers much of the backend automation, is not open source in the traditional sense.
+While BookLM is fully open-sourced and Supabase is also open source, it's important to be aware that n8n, which powers much of the backend automation, is not open source in the traditional sense.
 
 n8n is distributed under a [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md). This license allows free usage for internal business purposes, including hosting workflows within your company or organization.
 
-However, if you plan to use InsightsLM as part of a commercial SaaS offering—such as reselling access or hosting a public version for multiple clients—you may need to obtain an n8n Enterprise License. We’re not lawyers, so we recommend that you review the n8n license and contacting their team if your use case falls into a commercial category.
+However, if you plan to use BookLM as part of a commercial SaaS offering—such as reselling access or hosting a public version for multiple clients—you may need to obtain an n8n Enterprise License. We're not lawyers, so we recommend that you review the n8n license and contacting their team if your use case falls into a commercial category.
 
 Alternatives: If your use case is restricted by the n8n license, one potential option is to convert key workflows into Supabase Edge Functions. This would allow you to fully avoid using n8n in production.

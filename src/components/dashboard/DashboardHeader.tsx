@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { User, LogOut } from 'lucide-react';
@@ -18,7 +17,7 @@ const DashboardHeader = ({ userEmail }: DashboardHeaderProps) => {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Logo />
-          <h1 className="text-xl font-medium text-gray-900">InsightsLM</h1>
+          <h1 className="text-xl font-medium text-gray-900">BookLM</h1>
         </div>
         
         <div className="flex items-center space-x-4">
